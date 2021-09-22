@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import re, codecs
 import os
 import unicodedata
@@ -75,6 +74,7 @@ def remove_url(text):
   return text
 
 def normalize(text):
+  text = remove_html(text)
   text = remove_url(text)
   text = convert_utf8(text)
   text = normalize_accent(text)
@@ -108,7 +108,10 @@ texts = [
   "ca^u â'm co^ chie^u", 
   "   la'o    nga    la'o ngáo. hoa' điên ho'a khùng",
   r":v :vvv :VVV :))) :}}}} :) :((( ={{{",
-  "Chắc đc đó. Hôm qua tao có nói với nó rồi mà"
+  "Chắc đc đó. Hôm qua tao có nói với nó rồi mà",
+  "ngoooonnnnn",
+  '=]]]]]]',
+  '<p class=h> abc </p>'
 ]
 decomposed_texts = [unicodedata.normalize('NFD', t) for t in texts]
 
