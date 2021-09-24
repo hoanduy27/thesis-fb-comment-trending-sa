@@ -10,10 +10,10 @@ REGEX_SPECIAL = '*^$*+?!#|\\()[]'
 cur_dir = os.path.abspath(__file__)
 cur_dir = os.path.dirname(cur_dir)
 
-accents = f'{cur_dir}/map/accents.txt'
-syllables = f'{cur_dir}/map/syllables.txt'
-abbrev = f'{cur_dir}/map/abbreviations.txt'
-url = f'{cur_dir}/map/url.txt'
+accents = f'{cur_dir}/../map/accents.txt'
+syllables = f'{cur_dir}/../map/syllables.txt'
+abbrev = f'{cur_dir}/../map/abbreviations.txt'
+url = f'{cur_dir}/../map/url.txt'
 
 with codecs.open(accents, 'r', encoding='UTF-8') as f:
   accents_dict = {}
@@ -58,6 +58,7 @@ def normalize_syllable(text):
   return text 
 
 def normalize_abbrev(text):
+  "Normalize slangs and abbreviation"
   for k, v in abbrev_dict.items():
     #text = text.replace(k, v)
     k = ''.join('\\'+c if REGEX_SPECIAL.find(c) > -1 else c for c in k)
@@ -66,6 +67,7 @@ def normalize_abbrev(text):
   return text
 
 def normalize_repetive(text):
+  "ngooonnn -> ngon"
   return re.sub(r'([A-Z])\1+', lambda match: match[1], text, flags=re.IGNORECASE)
 
 def remove_url(text):
@@ -98,7 +100,6 @@ def normalize(text):
   
   return text
 
-
 # Testing
 texts = [
   "ko",
@@ -111,7 +112,7 @@ texts = [
   "Chắc đc đó. Hôm qua tao có nói với nó rồi mà",
   "ngoooonnnnn",
   '=]]]]]]',
-  '<p class=h> abc </p>'
+  'on lai'
 ]
 decomposed_texts = [unicodedata.normalize('NFD', t) for t in texts]
 
