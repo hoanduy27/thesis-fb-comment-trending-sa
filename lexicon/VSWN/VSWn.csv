@@ -1,0 +1,8 @@
+id,Term,PosScore,NegScore
+0,giá quá cao,0.125,0.5
+1,hiệu năng,0.5,0.0
+2,giá đắt lắm,0.0,0.5
+3,nhà giàu,0.675,0.0
+4,ảo tưởng,0.25,0.5
+5,ân nghĩa,0.5,0.0
+6,ẩn ý,0.5,0.25
