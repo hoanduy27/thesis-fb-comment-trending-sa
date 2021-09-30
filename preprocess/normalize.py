@@ -10,10 +10,12 @@ REGEX_SPECIAL = '*^$*+?!#|\\()[]'
 cur_dir = os.path.abspath(__file__)
 cur_dir = os.path.dirname(cur_dir)
 
-accents = f'{cur_dir}/../map/accents.txt'
-syllables = f'{cur_dir}/../map/syllables.txt'
-abbrev = f'{cur_dir}/../map/abbreviations.txt'
-url = f'{cur_dir}/../map/url.txt'
+map_dir = f'{cur_dir}/../lexicon/map'
+
+accents = f'{map_dir}/accents.txt'
+syllables = f'{map_dir}/syllables.txt'
+abbrev = f'{map_dir}/abbreviations.txt'
+url = f'{map_dir}/url.txt'
 
 with codecs.open(accents, 'r', encoding='UTF-8') as f:
   accents_dict = {}
@@ -54,7 +56,9 @@ def normalize_accent(text):
 def normalize_syllable(text):
   """òa, òe, úy -> oà, oè, uý"""
   for k, v in syllables_dict.items():
-    text = text.replace(k, v)  
+    k = ''.join('\\'+c if REGEX_SPECIAL.find(c) > -1 else c for c in k)
+    r = re.compile(fr'\b{k}\b', flags=re.IGNORECASE)
+    text = r.sub(v, text)
   return text 
 
 def normalize_abbrev(text):
@@ -102,24 +106,30 @@ def normalize(text):
 
 # Testing
 texts = [
-  "ko",
-  "t/k/cần bik bạn là ai. Bạn không nổ địa chỉ tại abc@gmail.com hay google.com thì chết cm mày với t! Cho mày 2 ngày",
-  "Nhất cô Hằng lun, 5* cô ơi :))",
-  "vẽ họa tiết",
-  "ca^u â'm co^ chie^u", 
+  "ko bik, đồ ngok",
+  "CMND này hết thời hạn rồi, đi làm lại cmnd mới đi.",
+  "on lai",
+  #"t/k/cần bik bạn là ai. Bạn không nổ địa chỉ tại abc@gmail.com hay google.com thì chết cm mày với t! Cho mày 2 ngày",
+  #"Nhất cô Hằng lun, 5* cô ơi",
+  #"vẽ họa tiết",
+  "ca^u a^'m co^ chie^u", 
   "   la'o    nga    la'o ngáo. hoa' điên ho'a khùng",
-  r":v :vvv :VVV :))) :}}}} :) :((( ={{{",
-  "Chắc đc đó. Hôm qua tao có nói với nó rồi mà",
+  # r":v :vvv :VVV :))) :}}}} :) :((( ={{{",
+  "hòa hoà hóa hoá họa hoạ",
+  "khỏe khoẻ",
+  "Ủy ban, uỷ mị",
   "ngoooonnnnn",
-  '=]]]]]]',
-  'on lai'
+  "been, IEEE, xoong nồi, bính boong"
+  #'=]]]]]]',
 ]
 decomposed_texts = [unicodedata.normalize('NFD', t) for t in texts]
 
 normalized_texts = [normalize(t) for t in texts]
 normalized_texts_decomposed = [normalize(t) for t in decomposed_texts]
 
-for t in normalized_texts:
-  print(t)
-print(texts == decomposed_texts)
-print(normalized_texts == normalized_texts_decomposed)
+for i in range(len(texts)):
+  print(f'>> Raw: {texts[i]}')
+  print(f'>> Preprocessed: {normalized_texts[i]}')
+  print()
+# print(texts == decomposed_texts)
+# print(normalized_texts == normalized_texts_decomposed)
