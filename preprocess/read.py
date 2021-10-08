@@ -13,6 +13,6 @@ def csv_to_dataset(filename, content_name, label_name='', preprocess=True, augme
   if preprocess:
     X = np.vectorize(normalize)(X)
   for aug in augmentations:
-    X, y = aug(X, y)
+    X, y = aug_dict[aug](X, y)
   
   return X.astype('object'), y
