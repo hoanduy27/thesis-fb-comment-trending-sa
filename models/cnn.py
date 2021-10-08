@@ -1,3 +1,13 @@
+import numpy as np
+import tensorflow as tf
+import keras
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Embedding, Flatten, Dense, Input, Softmax
+from tensorflow.keras.layers import Conv1D, MaxPool1D, Dropout, BatchNormalization
+from tensorflow.keras.layers import concatenate
+from tensorflow.keras.regularizers import l1_l2
+from models.losses import penalty_augmented_loss
+
 def SALT(input_length, input_dim, embedding_dim, output_dim, num_kernels, kernel_size, pool_size, embedding_dropout, conv_dropout,penalty=None, use_penalty=False, penalty_smooth=False, embedding_matrix=[]):
     inp = Input(shape=(input_length,))
     embedding = Embedding(input_dim=input_dim, output_dim=embedding_dim, input_length=input_length, mask_zero=False)(inp)
