@@ -21,10 +21,9 @@ def get_word_embedding(word_index , embedding_path):
 
   for word, i in word_index.items():
     try:
-      embedding_vector = word_index[word]
+      embedding_vector = w2v[word]
       embedding_matrix[i] = embedding_vector
     except KeyError:
       embedding_matrix[i]=np.random.normal(0,np.sqrt(0.25), 400)
 
-  return vocab_size, embedding_dim, embedding_matrix
-
+  return vocab_size + 1, embedding_dim, embedding_matrix

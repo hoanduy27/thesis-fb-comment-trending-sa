@@ -6,11 +6,11 @@ from tensorflow.keras.layers import Embedding, Flatten, Dense, Input, Softmax
 from tensorflow.keras.layers import Conv1D, MaxPool1D, Dropout, BatchNormalization
 from tensorflow.keras.layers import concatenate
 from tensorflow.keras.regularizers import l1_l2
-from models.losses import penalty_augmented_loss
 
-def SALT(input_length, input_dim, embedding_dim, output_dim, num_kernels, kernel_size, pool_size, embedding_dropout, conv_dropout,penalty=None, use_penalty=False, penalty_smooth=False, embedding_matrix=[]):
+
+def SALT(input_length, input_dim, embedding_dim, output_dim, num_kernels, kernel_size, pool_size, embedding_dropout, conv_dropout, loss=None, embedding_matrix=[]):
     inp = Input(shape=(input_length,))
-    embedding = Embedding(input_dim=input_dim, output_dim=embedding_dim, input_length=input_length, mask_zero=False)(inp)
+    embedding = Embedding(input_dim=input_dim, output_dim=embedding_dim, input_length=input_length, mask_zero=False, weights=[embedding_matrix])(inp)
     dropout1 = Dropout(embedding_dropout)(embedding)
     conv = []
     for i in range(num_kernels):
@@ -33,14 +33,14 @@ def SALT(input_length, input_dim, embedding_dim, output_dim, num_kernels, kernel
 
     model = Model(inputs = inp, outputs = op)
 
-    if not use_penalty:
-        if output_dim==2:
-            loss = 'binary_crossentropy'
-        else:
-            loss = 'categorical_crossentropy'
+    if loss is not None:
+        loss = loss
     else:
-        loss = penalty_augmented_loss(penalty, smooth=penalty_smooth)
-
+      if output_dim==2:
+        loss = 'binary_crossentropy'
+      else:
+        loss = 'categorical_crossentropy'
+        
     model.compile(
         loss = loss, 
         optimizer = 'adam', 
