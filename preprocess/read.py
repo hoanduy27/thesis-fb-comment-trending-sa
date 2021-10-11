@@ -11,8 +11,11 @@ def csv_to_dataset(filename, content_name, label_name='', preprocess=True, augme
   X = ds.iloc[:][content_name].values
   y = ds.iloc[:][label_name].values if label_name != '' else []
   if preprocess:
-    X = np.vectorize(normalize)(X)
+    X = np.array(list(map(normalize, X)), dtype='object')
+
   for aug in augmentations:
+
     X, y = aug_dict[aug](X, y)
   
   return X.astype('object'), y
+

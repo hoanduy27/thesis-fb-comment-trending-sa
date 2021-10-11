@@ -100,8 +100,7 @@ def normalize(text):
   text = text.translate(str.maketrans('.!?', '.'*3))
 
   # Word segmentation
-  text = ViTokenizer.tokenize(text, )
-  
+  text = ViTokenizer.tokenize(text, ).split(' ')
   return text
 
 # Testing
@@ -133,3 +132,4 @@ for i in range(len(texts)):
   print()
 # print(texts == decomposed_texts)
 # print(normalized_texts == normalized_texts_decomposed)
+
