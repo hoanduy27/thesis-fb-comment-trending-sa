@@ -101,7 +101,7 @@ def normalize(text):
 
   # Word segmentation
   # text = ViTokenizer.tokenize(text, ).split(' ')
-  # return text
+  return text
 
 # Testing
 texts = [

@@ -6,7 +6,7 @@ cur_dir = os.path.dirname(cur_dir)
 class WordSegmenter:
   from pyvi import ViTokenizer
   from vncorenlp import VnCoreNLP as __VnCoreNLP
-  VnCoreNLPTokenizer = VnCoreNLP(f'{cur_dir}/vncorenlp/VnCoreNLP-1.1.1.jar', annotators='wseg', max_heap_size='-Xmx500m')
+  VnCoreNLPTokenizer = __VnCoreNLP(f'{cur_dir}/vncorenlp/VnCoreNLP-1.1.1.jar', annotators='wseg', max_heap_size='-Xmx500m')
 
   def tokenizer(segmenter):
     def tokenize(text):
