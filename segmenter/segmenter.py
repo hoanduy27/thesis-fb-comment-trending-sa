@@ -14,6 +14,7 @@ class WordSegmenter:
         text = text.strip(' ')
         return WordSegmenter.ViTokenizer.tokenize(text).split(' ') if text else []
       elif segmenter == 'vncorenlp':
+        from functools import reduce
         segments = WordSegmenter.VnCoreNLPTokenizer.tokenize(text)
-        return segments[0] if segments else []
+        return list(reduce(lambda lst, seg: lst + seg, segments, []))
     return tokenize
