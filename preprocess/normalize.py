@@ -3,7 +3,7 @@ import re, codecs
 import os
 import unicodedata
 import string
-from pyvi import ViTokenizer
+from segmenter.segmenter import WordSegmenter
 
 REGEX_SPECIAL = '*^$*+?!#|\\()[]'
 
@@ -100,8 +100,8 @@ def normalize(text):
   text = text.translate(str.maketrans('.!?', '.'*3))
 
   # Word segmentation
-  text = ViTokenizer.tokenize(text, ).split(' ')
-  return text
+  # text = ViTokenizer.tokenize(text, ).split(' ')
+  # return text
 
 # Testing
 texts = [
