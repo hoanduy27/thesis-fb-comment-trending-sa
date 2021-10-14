@@ -5,7 +5,7 @@ from sklearn.model_selection import StratifiedKFold
 from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, TensorBoard, CSVLogger
 from tensorflow.keras.utils import to_categorical
 from models.cnn import SALT
-
+from tensorflow.keras.optimizers import Adam
 
 cur_dir = os.path.abspath(__file__)
 cur_dir = os.path.dirname(cur_dir)
@@ -36,7 +36,6 @@ def train_SALT(name, X, y, n_folds=1, batch_size=8, epochs=10, **kwargs):
       pool_size = kwargs.get('pool_size', 2),
       embedding_dropout = kwargs.get('embedding_dropout', 0.2),
       conv_dropout = kwargs.get('conv_dropout', 0.2),
-      loss = kwargs.get('loss', None),
       embedding_matrix = kwargs.get('embedding_matrix', None)
     )
     # Save model config
@@ -57,8 +56,25 @@ def train_SALT(name, X, y, n_folds=1, batch_size=8, epochs=10, **kwargs):
       log_path = f'{model_dir}/fold_{i}/history.csv',
       patience = kwargs.get('patience', 1)
     )
-    # Start training
+    
+    # Loss
+    loss = kwargs.get('loss', None)
+    if loss is None:
+      if output_dim==1:
+        loss = 'binary_crossentropy'
+      else:
+        loss = 'categorical_crossentropy'
+        
+    # Compile model
+    optimizer = kwargs.get('optimizer', Adam(learning_rate=.001, beta_1=.9, beta_2=.99, epsilon=1e-8))
+    salt_cv.compile(
+        loss = loss, 
+        optimizer = optimizer,
+        metrics = [tf.keras.metrics.AUC(),
+                   'accuracy']
+    )
 
+    # Start training
     salt_cv.fit(
       X[train_idx], 
       y_cat[train_idx], 
