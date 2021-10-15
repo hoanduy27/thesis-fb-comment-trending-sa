@@ -5,23 +5,50 @@ from sklearn.model_selection import StratifiedKFold
 from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, TensorBoard, CSVLogger
 from tensorflow.keras.utils import to_categorical
 from models.cnn import SALT
-from tensorflow.keras.optimizers import Adam
-
+from tensorflow.keras.optimizers import Adam, SGD, Adadelta
 cur_dir = os.path.abspath(__file__)
 cur_dir = os.path.dirname(cur_dir)
 
-def create_callbacks(model_path, tensorboard_path, log_path, patience):
+def create_callbacks(model_path, tensorboard_path, log_path, factor, cooldown, patience):
   save_model = ModelCheckpoint(model_path, save_best_only=True,monitor='val_accuracy', mode='max')
-  reduce_lr_loss = ReduceLROnPlateau(monitor='val_loss', factor=0.1,  patience=patience, verbose=1, epsilon=1e-4, mode='min')
+  reduce_lr_loss = ReduceLROnPlateau(monitor='val_loss', mode='min', factor=factor,  cooldown=cooldown, patience=patience, min_delta=1e-4, verbose=1)
   tensorboard = TensorBoard(log_dir=tensorboard_path)
   log_train = CSVLogger(log_path, separator=",", append=False)
   return [save_model, reduce_lr_loss, tensorboard, log_train]
+
+def get_optimizer(optim, optim_conf):
+  optim_base_conf = {
+    'adam': [Adam, {'learning_rate': .001, 'beta_1': .9, 'beta_2': .999, 'epsilon': 1e-7, 'amsgrad': False}],
+    'sgd': [SGD, {'learning_rate': 0.01, 'momentum': 0.0, 'nesterov': False}],
+    'adadelta': [Adadelta, {'learning_rate': 0.001, 'rho': 0.95, 'epsilon': 1e-07}]
+  }
+
+  if optim in optim_base_conf:
+    optimizer, config = optim_base_conf[optim]
+    for param, val in optim_conf.items():
+      if param in config:
+        config[param] = val
+      else:
+        accepted_params = ', '.join(map(lambda pr: f'`{pr}`', config.keys()))
+        raise Exception(f'Parameter `{param}` for `{optim}` optimizer is not defined. Accepted parameter: {accepted_params}')
+    return optimizer(**config)
+  else:
+    raise Exception('Optimizer is not supported. Supported optimizer: adam, sgd, adadelta')
+
+def fake_train(**kwargs):
+  optim = kwargs.get('optim', 'adam')
+  optim_conf = kwargs.get('optim_conf', {})
+  
+  return get_optimizer(optim, optim_conf)
 
 def train_SALT(name, X, y, n_folds=1, batch_size=8, epochs=10, **kwargs):
   model_dir = f'{cur_dir}/logs/salt/{name}'
   kfolds = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=7).split(X, y)
   y_cat = to_categorical(y)
   
+  optim = kwargs.get('optim', 'adam')
+  optim_conf = kwargs.get('optim_conf', {})
+
   for i, (train_idx, val_idx) in enumerate(kfolds):
     print(f'Fold {i}:')
     print('>'*60)
@@ -54,6 +81,8 @@ def train_SALT(name, X, y, n_folds=1, batch_size=8, epochs=10, **kwargs):
       model_path = f'{model_dir}/fold_{i}/model',
       tensorboard_path = f'{model_dir}/fold_{i}/tensorboard', 
       log_path = f'{model_dir}/fold_{i}/history.csv',
+      factor = kwargs.get('factor', .1),
+      cooldown= kwargs.get('cooldown', 2),
       patience = kwargs.get('patience', 1)
     )
     
@@ -66,7 +95,7 @@ def train_SALT(name, X, y, n_folds=1, batch_size=8, epochs=10, **kwargs):
         loss = 'categorical_crossentropy'
         
     # Compile model
-    optimizer = kwargs.get('optimizer', Adam(learning_rate=.001, beta_1=.9, beta_2=.99, epsilon=1e-8))
+    optimizer = get_optimizer(optim, optim_conf)
     salt_cv.compile(
         loss = loss, 
         optimizer = optimizer,
