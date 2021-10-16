@@ -42,6 +42,18 @@ def fake_train(**kwargs):
   
   return get_optimizer(optim, optim_conf)
 
+def train_model(model, train_data, n_folds, batch_size=8, epochs=10):
+  timestamp = '-'.join('.'.join(str(datetime.datetime.now()).split('.')[:-1]).split(' '))
+  model_dir = f'{cur_dir}/logs/{model}/{timestamp}'
+
+  # Load dataset
+  X,y = read.csv_to_dataset(data, 'comment', 'label', preprocess=False, tokenize='vncorenlp')
+  # Tokenize
+
+  # 
+
+  print(model_name)
+
 def train_SALT(name, X, y, n_folds=1, batch_size=8, epochs=10, **kwargs):
   model_dir = f'{cur_dir}/logs/salt/{name}'
   kfolds = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=7).split(X, y)
