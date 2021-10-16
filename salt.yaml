@@ -1,0 +1,19 @@
+model: salt
+model_conf:
+  input_length: 256
+  input_dim: 10000
+  output_dim: 2
+  embedding_dim: 400
+
+loss: penalty_augmented_loss
+loss_conf:
+  penalty_matrix:
+    - 
+      - 1
+      - 2
+    - 
+      - 1.5
+      - 1
+  smooth: True
+
+optim: adam

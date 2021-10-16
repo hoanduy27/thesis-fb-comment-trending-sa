@@ -3,7 +3,7 @@ import re, codecs
 import os
 import unicodedata
 import string
-from segmenter.segmenter import WordSegmenter
+from preprocess.tokenizer import WordSegmenter
 
 REGEX_SPECIAL = '*^$*+?!#|\\()[]'
 

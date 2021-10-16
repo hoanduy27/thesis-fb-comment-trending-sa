@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from preprocess.normalize import normalize
 from preprocess.augment import add_remove_accent_texts
-from segmenter.segmenter import WordSegmenter
+from preprocess.tokenizer import WordSegmenter
 
 def csv_to_dataset(filename, content_name, label_name='', preprocess=True, tokenize=None, augmentations=[]):
   aug_dict = {'accent': add_remove_accent_texts}

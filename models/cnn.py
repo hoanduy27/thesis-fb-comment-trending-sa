@@ -19,14 +19,18 @@ def MHSA(num_heads, key_dim, value_dim):
     return add1
   return calc
 
-def SALT(input_length, input_dim, embedding_dim, output_dim, num_kernels, kernel_size, pool_size, embedding_dropout, conv_dropout, embedding_matrix=None):
+def SALT(input_length, input_dim, embedding_dim, output_dim, num_kernels, kernel_sizes, pool_size, embedding_dropout, conv_dropout, embedding_matrix=None):
     """SALT model, proposed in https://arxiv.org/abs/1806.08760"""
     inp = Input(shape=(input_length,))
     embedding = Embedding(input_dim=input_dim, output_dim=embedding_dim, input_length=input_length, mask_zero=False, weights=[embedding_matrix] if embedding_matrix is not None else None, name='embedding')(inp)
     embedding = Dropout(embedding_dropout)(embedding)
 
     conv = []
-    for i in range(num_kernels):
+
+    if isinstance(kernel_sizes, int):
+      kernel_sizes = [kernel_sizes]*num_kernels
+    assert len(kernel_sizes) == num_kernels, 'If specify by list, the length of `kernel_sizes` must equal to `num_kernels`'
+    for kernel_size in kernel_sizes:
       conv += [Conv1D(1, kernel_size=kernel_size, padding='same', activation='relu', kernel_regularizer=l1_l2(0.01, 0.01))(embedding)]
     
     concat = concatenate(conv)
